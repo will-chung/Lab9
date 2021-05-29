@@ -55,18 +55,117 @@
     <button>Trigger a Global Error</button>
   </section>
 
+  <script src="https://cdn.trackjs.com/agent/v3/latest/t.js"></script>
   <script>
+    window.TrackJS && TrackJS.install({ 
+      token: "9e468f88063d42d9b326b25af448cac9"
+      // for more configuration options, see https://docs.trackjs.com
+    });
+
+    class EmptyOperandError extends Error {
+      constructor(message) {
+        super(message);
+        this.name = "EmptyOperandError";
+      }
+    }
+
+    window.addEventListener('error', (err) => {
+      console.log(err);
+    });
+
     let calculateBtn = document.querySelector('#calculate');
     calculateBtn.addEventListener('click', () => {
-      let output = document.querySelector('output');
-      let firstNum = document.querySelector('#first-num').value;
-      let secondNum = document.querySelector('#second-num').value;
-      let operator = document.querySelector('#operator').value;
-      output.innerHTML = eval(`${firstNum} ${operator} ${secondNum}`);
+      let output;
+      let result;
+      try { 
+        output = document.querySelector('output');
+        let firstNum = document.querySelector('#first-num').value;
+
+        if (firstNum == '') 
+          throw new EmptyOperandError("Missing first operand");
+
+        let secondNum = document.querySelector('#second-num').value;
+
+        if (secondNum == '')
+          throw new EmptyOperandError("Missing second operand");
+
+        let operator = document.querySelector('#operator').value;
+        result = eval(`${firstNum} ${operator} ${secondNum}`);
+      } catch (err) {
+        result = 'Error';
+        if (err instanceof EmptyOperandError)
+          alert(err.message + ', please enter a valid number');
+        else 
+          throw err;
+      } finally {
+        output.innerHTML = result;
+      }
     });
 
     let errorBtns = Array.from(document.querySelectorAll('#error-btns > button'));
-    // TODO - Make buttons functional
+    
+    errorBtns[0].addEventListener('click', () => {
+      console.log('Console Log Demo');
+    });
+
+    errorBtns[1].addEventListener('click', () => {
+      console.error('Console Error Demo');
+    });
+
+    errorBtns[2].addEventListener('click', () => {
+      console.dir(document.head);
+    });
+    
+    errorBtns[3].addEventListener('click', () => {
+      console.dirxml(document);
+    });
+
+    errorBtns[4].addEventListener('click', () => {
+      console.group('Console Group');
+    });
+
+    errorBtns[5].addEventListener('click', () => {
+      console.groupEnd('Console Group');
+    });
+
+    errorBtns[6].addEventListener('click', () => {
+      console.table([
+        {
+          name: 'Software Engineering',
+          num: 110,
+        },
+        {
+          name: 'Programming Languages',
+          num: 130
+        },
+        {
+          name: 'Advanced Software Engineering',
+          num: 112
+        }
+      ]);
+    });
+
+    errorBtns[7].addEventListener('click', () => {
+      console.log('Timer started!');
+      console.time();
+    });
+
+    errorBtns[8].addEventListener('click', () => {
+      console.log('Timer ended!')
+      console.timeEnd();
+    });
+
+    errorBtns[9].addEventListener('click', () => {
+      const traceTest = () => { deep(); };
+      const deep = () => { deeper(); };
+      const deeper = () => { deepest(); };
+      const deepest = () => { console.trace(); };
+      traceTest();
+    });
+
+    errorBtns[10].addEventListener('click', () => {
+      throw new Error('global error');
+    });
   </script>
 </body>
 </html>
